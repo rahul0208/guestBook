@@ -1,18 +1,27 @@
 package org.sample.guestbook;
 
-import com.azure.spring.aad.webapp.AADWebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import com.azure.spring.autoconfigure.b2c.AADB2COidcLoginConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class AADOAuth2LoginSecurityConfig extends AADWebSecurityConfigurerAdapter {
+public class AADOAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final AADB2COidcLoginConfigurer configurer;
+
+    public AADOAuth2LoginSecurityConfig(AADB2COidcLoginConfigurer configurer) {
+        this.configurer = configurer;
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        super.configure(http);
-        http.authorizeRequests()
-                .anyRequest().authenticated();
+        http
+                .authorizeRequests()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .apply(configurer)
+        ;
     }
 }
